@@ -3,7 +3,7 @@
 
 // set pin definition
 int DIN_pin = 11;
-int LOAD_pin = 3;
+int LOAD_pin = 10;
 int CLOCK_pin = 13;
 
 // MAX7219 register address
@@ -215,47 +215,44 @@ void overlay(byte number, byte offset)
 
 void loop()
 {
-  for ( int i = 0; i < 64; i++ ){
-  
-  int pos_0 = 24 + i;
-  int pos_1 = 16 + i;
-  int pos_2 = 8 + i;
-  int pos_3 = 0 + i;
-  overlay(0, pos_0);
-  overlay(1, pos_1);
-  overlay(2, pos_2);
-  overlay(3, pos_3);
-  
-  if(i > 8){
-    int pos_4 = 24 + i - 32;
-    overlay(4, pos_4);
-    
-    if(i > 16){
-      int pos_5 = 16 + i - 32;
-      overlay(5, pos_5);
+  for (int i = 0; i < 64; i++)
+  {
 
-      if(i > 24){
-        int pos_6 = 8 + i - 32;
-        overlay(6, pos_6);
+    int pos_0 = 24 + i;
+    int pos_1 = 16 + i;
+    int pos_2 = 8 + i;
+    int pos_3 = 0 + i;
+    overlay(0, pos_0);
+    overlay(1, pos_1);
+    overlay(2, pos_2);
+    overlay(3, pos_3);
 
-        if(i > 32){
-          int pos_7 = 0 + i - 32;
-          overlay(7, pos_7);
+    if (i > 8)
+    {
+      int pos_4 = 24 + i - 32;
+      overlay(4, pos_4);
+
+      if (i > 16)
+      {
+        int pos_5 = 16 + i - 32;
+        overlay(5, pos_5);
+
+        if (i > 24)
+        {
+          int pos_6 = 8 + i - 32;
+          overlay(6, pos_6);
+
+          if (i > 32)
+          {
+            int pos_7 = 0 + i - 32;
+            overlay(7, pos_7);
+          }
         }
       }
     }
-  }
 
-  draw_matrix_8x32();
-  delay(100);
-  clear_screen();
+    draw_matrix_8x32();
+    delay(100);
+    clear_screen();
   }
-
-  // overlay(3, 24);
-  // overlay(2, 16);
-  // overlay(1, 8);
-  // overlay(0, 0);
-  // draw_matrix_8x32();
-  // delay(1000);
-  // clear_screen();
 }
