@@ -44,12 +44,61 @@ int reset()
     return r;
 }
 
-void skip_rom(){
-    
+void write_1()
+{
+    digitalWrite(10, LOW);
+    pinMode(10, OUTPUT);
+    pinMode(10, INPUT);
+    delayMicroseconds(70);
+}
+
+void write_0()
+{
+    digitalWrite(10, LOW);
+    pinMode(10, OUTPUT);
+    delayMicroseconds(70);
+}
+
+void skip_rom()
+{
+    write_0();
+    write_0();
+    write_1();
+    write_1();
+
+    write_0();
+    write_0();
+    write_1();
+    write_1();
+}
+
+void read_scratchpad()
+{
+    // BE
+
+    write_0();
+    write_1();
+    write_1();
+    write_1();
+
+    write_1();
+    write_1();
+    write_0();
+    write_1();
 }
 
 void loop()
 {
     reset();
+    skip_rom();
+    read_scratchpad();
+
+    pinMode(10, INPUT);
+    for (int i = 0; i <= 64; i++)
+    {
+        Serial.print(digitalRead(10));
+        delayMicroseconds(60);
+    }
+
     delay(1000);
 }
