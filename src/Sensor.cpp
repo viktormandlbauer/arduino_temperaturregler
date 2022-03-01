@@ -46,17 +46,37 @@ int reset()
 
 void write_1()
 {
+
+    cli();
     digitalWrite(10, LOW);
     pinMode(10, OUTPUT);
+    delayMicroseconds(5);
     pinMode(10, INPUT);
-    delayMicroseconds(70);
+    delayMicroseconds(80);
+    sei();
 }
 
 void write_0()
 {
+    cli();
     digitalWrite(10, LOW);
     pinMode(10, OUTPUT);
-    delayMicroseconds(70);
+    delayMicroseconds(80);
+    pinMode(10, INPUT);
+    delayMicroseconds(5);
+    sei();
+}
+
+int read(){
+    cli();
+    digitalWrite(10, LOW);
+    pinMode(10, OUTPUT);
+    delayMicroseconds(5);
+    pinMode(10, INPUT);
+    delayMicroseconds(10);
+    sei();
+
+    return digitalRead(10);
 }
 
 void skip_rom()
@@ -70,6 +90,21 @@ void skip_rom()
     write_0();
     write_1();
     write_1();
+}
+
+void convertT(){
+
+    // 44
+    write_0();
+    write_0();
+    write_1();
+    write_0();
+
+    write_0();
+    write_0();
+    write_1();
+    write_0();
+
 }
 
 void read_scratchpad()
@@ -87,18 +122,48 @@ void read_scratchpad()
     write_1();
 }
 
+
+
 void loop()
 {
+
+    byte scratchpad[9] = {
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000,
+    0b00000000};
+
     reset();
     skip_rom();
     read_scratchpad();
+    
+    int byte_array_index = 0;
+    byte mod_8;
+    byte mask;
 
-    pinMode(10, INPUT);
-    for (int i = 0; i <= 64; i++)
+    for (int i = 0; i < 72; i++)
     {
-        Serial.print(digitalRead(10));
-        delayMicroseconds(60);
+        mod_8 = i % 8;
+        
+        if(mod_8 == 0){
+            byte_array_index ++;
+        }
+        if(read()){
+            mask = 0x1 << (7 - mod_8);
+            scratchpad[byte_array_index - 1] |= mask;
+        }
     }
 
-    delay(1000);
+    for(int i = 0; i <= 8; i++){
+        Serial.print(scratchpad[i], BIN);
+        Serial.print("\n");
+    }
+    Serial.print("\n");
+
+    delay(5000);
 }
