@@ -16,6 +16,7 @@ int getKey()
   byte column = 0;
   byte row = 0;
 
+  // Look for connections - column wise
   for (int i = 2; i <= 5; i++)
   {
     pinMode(i, OUTPUT);
@@ -32,15 +33,17 @@ int getKey()
     }
     pinMode(i, OUTPUT);
   }
-
-  for (int i = 2; i <= 5; i++)
-  {
-    digitalWrite(i, 0);
-  }
-
+  
+  //Check if any connection was present
   if (column == 0)
   {
     return 0;
+  }
+
+  // Look for connections - row wise
+  for (int i = 2; i <= 5; i++)
+  {
+    digitalWrite(i, 0);
   }
 
   for (int i = 6; i <= 9; i++)
@@ -64,6 +67,7 @@ int getKey()
   {
     digitalWrite(i, 0);
   }
-
+  
+  // return array matrix mapped to keypad
   return tasten[row - 1][column - 1];
 }
