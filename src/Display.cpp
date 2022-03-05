@@ -2,27 +2,20 @@
 #include <Characters_8x8.h>
 
 // set pin definition
-int DIN_pin = 11;
-int LOAD_pin = 10;
-int CLOCK_pin = 13;
+const int LOAD_pin = 10;
+const int DIN_pin = 11;
+const int CLOCK_pin = 13;
+const int modules = 4;
 
 // MAX7219 register address
-byte max7219_REG_noop = 0x00;
-byte max7219_REG_decodeMode = 0x09;
-byte max7219_REG_intensity = 0x0a;
-byte max7219_REG_scanLimit = 0x0b;
-byte max7219_REG_shutdown = 0x0c;
-byte max7219_REG_displayTest = 0x0f;
+const byte max7219_REG_noop = 0x00;
+const byte max7219_REG_decodeMode = 0x09;
+const byte max7219_REG_intensity = 0x0a;
+const byte max7219_REG_scanLimit = 0x0b;
+const byte max7219_REG_shutdown = 0x0c;
+const byte max7219_REG_displayTest = 0x0f;
 
-uint64_t matrix_8X32[8] = {
-    0b00000000000000000000000000000000,
-    0b00000000000000000000000000000000,
-    0b00000000000000000000000000000000,
-    0b00000000000000000000000000000000,
-    0b00000000000000000000000000000000,
-    0b00000000000000000000000000000000,
-    0b00000000000000000000000000000000,
-    0b00000000000000000000000000000000};
+byte matrix_8X32[8][modules];
 
 void SendByte(byte data)
 {
@@ -72,14 +65,23 @@ void clear_screen()
 
   for (byte i = 0; i < 8; i++)
   {
-    matrix_8X32[i] = 0;
+    for (byte j = 0; j < 4; j++)
+    {
+      matrix_8X32[i][j] = 0x0;
+    }
   }
+}
+
+// Set display intensity
+void set_display_intensity()
+{
+  byte intensity_value = (round((16 * analogRead(A0)) / 1024) + 0.4);
+  init(max7219_REG_intensity, intensity_value);
 }
 
 void setup()
 {
   Serial.begin(9600);
-  Serial.print("Start\n");
 
   pinMode(DIN_pin, OUTPUT);
   pinMode(CLOCK_pin, OUTPUT);
@@ -94,7 +96,6 @@ void setup()
   // Not test mode
   init(max7219_REG_displayTest, 0x00);
   // Set display
-  init(max7219_REG_intensity, 0x0F);
 
   clear_screen();
 }
@@ -102,157 +103,67 @@ void setup()
 void draw_matrix_8x32()
 {
 
-  uint32_t mask;
+  byte mask = 0;
 
-  for (byte i = 1; i <= 8; i++)
+  for (byte i = 0; i < 8; i++)
   {
-
+    // Send digets address
     digitalWrite(LOAD_pin, LOW);
 
-    for (uint16_t j = 32; j > 0; j--)
+    // Send leds
+    for (byte j = 0; j < modules; j++)
     {
-      if (j % 8 == 0)
+      SendByte(8 - i);
+      for (byte k = 0; k < 8; k++)
       {
-        SendByte(i);
-      }
+        mask = 0x01 << k;
+        digitalWrite(CLOCK_pin, LOW);
 
-      mask = 0x80000000 >> (32 - j);
-      digitalWrite(CLOCK_pin, LOW);
+        if (mask & matrix_8X32[i][modules - 1 - j])
+        {
+          digitalWrite(DIN_pin, HIGH);
+        }
+        else
+        {
+          digitalWrite(DIN_pin, LOW);
+        }
 
-      if (mask & matrix_8X32[i - 1])
-      {
-        digitalWrite(DIN_pin, HIGH);
+        digitalWrite(CLOCK_pin, HIGH);
       }
-      else
-      {
-        digitalWrite(DIN_pin, LOW);
-      }
-
-      digitalWrite(CLOCK_pin, HIGH);
     }
-
     digitalWrite(LOAD_pin, HIGH);
   }
 }
 
-void overlay(byte number, byte offset)
+void overlay(byte *matrix, byte offset)
 {
+  byte sector = 0;
+  byte sector_offset = 0;
 
-  uint32_t number_matrix[8];
-  uint64_t mask;
-
-  switch (number)
-  {
-  case 0:
-    for (byte i = 0; i < 8; i++)
-    {
-      number_matrix[i] = number_0[i];
-    }
-    break;
-  case 1:
-    for (byte i = 0; i < 8; i++)
-    {
-      number_matrix[i] = number_1[i];
-    }
-    break;
-  case 2:
-    for (byte i = 0; i < 8; i++)
-    {
-      number_matrix[i] = number_2[i];
-    }
-    break;
-  case 3:
-    for (byte i = 0; i < 8; i++)
-    {
-      number_matrix[i] = number_3[i];
-    }
-    break;
-  case 4:
-    for (byte i = 0; i < 8; i++)
-    {
-      number_matrix[i] = number_4[i];
-    }
-    break;
-  case 5:
-    for (byte i = 0; i < 8; i++)
-    {
-      number_matrix[i] = number_5[i];
-    }
-    break;
-  case 6:
-    for (byte i = 0; i < 8; i++)
-    {
-      number_matrix[i] = number_6[i];
-    }
-    break;
-  case 7:
-    for (byte i = 0; i < 8; i++)
-    {
-      number_matrix[i] = number_7[i];
-    }
-    break;
-  case 8:
-    for (byte i = 0; i < 8; i++)
-    {
-      number_matrix[i] = number_8[i];
-    }
-    break;
-  case 9:
-    for (byte i = 0; i < 8; i++)
-    {
-      number_matrix[i] = number_9[i];
-    }
-    break;
-  default:
-    break;
-  }
   for (byte i = 0; i < 8; i++)
   {
-    mask = number_matrix[i] << offset;
-    matrix_8X32[i] = matrix_8X32[i] | mask;
+    sector_offset = offset % 8;
+    sector = offset / 8;
+
+    if (sector_offset == 0)
+    {
+      matrix_8X32[i][sector] |= matrix[i];
+    }
+    else
+    {
+      matrix_8X32[i][sector] |= (matrix[i] << sector_offset);
+      matrix_8X32[i][sector + 1] |= (matrix[i] >> (8 - sector_offset));
+    }
   }
 }
 
 void loop()
 {
-  for (int i = 0; i < 64; i++)
-  {
-
-    int pos_0 = 24 + i;
-    int pos_1 = 16 + i;
-    int pos_2 = 8 + i;
-    int pos_3 = 0 + i;
-    overlay(0, pos_0);
-    overlay(1, pos_1);
-    overlay(2, pos_2);
-    overlay(3, pos_3);
-
-    if (i > 8)
-    {
-      int pos_4 = 24 + i - 32;
-      overlay(4, pos_4);
-
-      if (i > 16)
-      {
-        int pos_5 = 16 + i - 32;
-        overlay(5, pos_5);
-
-        if (i > 24)
-        {
-          int pos_6 = 8 + i - 32;
-          overlay(6, pos_6);
-
-          if (i > 32)
-          {
-            int pos_7 = 0 + i - 32;
-            overlay(7, pos_7);
-          }
-        }
-      }
-    }
-
-    draw_matrix_8x32();
-    delay(100);
-    clear_screen();
-  }
+  set_display_intensity();
+  overlay(number_1, 0);
+  overlay(number_2, 8);
+  overlay(number_3, 16);
+  overlay(number_4, 24);
+  draw_matrix_8x32();
+  delay(10);
 }
