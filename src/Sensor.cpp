@@ -12,7 +12,6 @@ void setup()
 int reset()
 {
     uint8_t r;
-    uint8_t retries = 125;
 
     cli();
     pinMode(DATA_PIN, INPUT);
@@ -20,8 +19,6 @@ int reset()
 
     do
     {
-        if (--retries == 0)
-            return 1;
         delayMicroseconds(2);
     } while (!digitalRead(DATA_PIN));
 
@@ -83,19 +80,6 @@ int read()
     return digitalRead(DATA_PIN);
 }
 
-void skip_rom()
-{
-    write_0();
-    write_0();
-    write_1();
-    write_1();
-
-    write_0();
-    write_0();
-    write_1();
-    write_1();
-}
-
 void send_byte(byte byte)
 {
     for (int i = 0; i < 8; i++)
@@ -117,6 +101,11 @@ void send_64bitcode(byte *bytes)
     {
         send_byte(bytes[i]);
     }
+}
+
+void skip_rom()
+{
+    send_byte(0xCC);
 }
 
 void read_rom()
@@ -248,7 +237,7 @@ byte read_byte()
     return read_byte;
 }
 
-int getTemperature()
+double getTemperature()
 {
 
     double temperatur = 0;
@@ -266,19 +255,24 @@ int getTemperature()
     if (msb & 0b111100)
     {
         two_bytes = two_bytes xor 0xFFF0;
-        for (int i = -4; i < 6; i++){
+        for (int i = -4; i < 6; i++)
+        {
             if (two_bytes & (0x01 << (i + 4)))
             {
-                if(i >= 0){
+                if (i >= 0)
+                {
                     temperatur += pow(2, i);
-                }else{
+                }
+                else
+                {
                     temperatur -= pow(2, i);
                 }
             }
         }
+        reset();
         return (temperatur + 1) * -1;
     }
-    
+
     // Positive Temperatur
     for (int i = -4; i < 6; i++)
     {
@@ -287,21 +281,20 @@ int getTemperature()
             temperatur += pow(2, i);
         }
     }
+    reset();
     return temperatur;
 }
 
 void loop()
 {
-    byte *rom = getROM();
+    // byte *rom = getROM();
 
     reset();
     skip_rom();
-    delay(10);
     convertT();
-    delay(10);
 
-    getTemperature();
+    double temp = getTemperature();
+    Serial.println(temp);
 
     delay(500);
-    Serial.println();
 }
