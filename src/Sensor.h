@@ -1,13 +1,4 @@
-
-#include <Arduino.h>
-#include <stdlib.h>
-
-#define DATA_PIN 2
-
-void setup()
-{
-    Serial.begin(9600);
-}
+#define DATA_PIN 12
 
 int reset()
 {
@@ -237,10 +228,10 @@ byte read_byte()
     return read_byte;
 }
 
-double getTemperature()
+float getTemperature()
 {
 
-    double temperatur = 0;
+    float temperatur = 0;
 
     reset();
     skip_rom();
@@ -283,18 +274,4 @@ double getTemperature()
     }
     reset();
     return temperatur;
-}
-
-void loop()
-{
-    // byte *rom = getROM();
-
-    reset();
-    skip_rom();
-    convertT();
-
-    double temp = getTemperature();
-    Serial.println(temp);
-
-    delay(500);
 }
