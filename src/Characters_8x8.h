@@ -1,5 +1,12 @@
 #include <Arduino.h>
 
+
+/**
+ * Zeichendarstellung in 8x8 Array
+ * Könnnen im Display.h als Overlay für die module*8x8 Matrix verwendet werden und somit dargestellt werden
+ **/
+
+// Zahl: 0
 byte number_0[8] = {
     0b01111000,
     0b11001100,
@@ -10,6 +17,7 @@ byte number_0[8] = {
     0b11001100,
     0b01111000};
 
+// Zahl: 1
 byte number_1[8] = {
     0b00110000,
     0b01110000,
@@ -20,6 +28,7 @@ byte number_1[8] = {
     0b00110000,
     0b00110000};
 
+// Zahl: 2
 byte number_2[8] = {
     0b01111000,
     0b11001100,
@@ -30,6 +39,7 @@ byte number_2[8] = {
     0b11000000,
     0b11111100};
 
+// Zahl: 3
 byte number_3[8] = {
     0b11111000,
     0b00001100,
@@ -40,6 +50,7 @@ byte number_3[8] = {
     0b00001100,
     0b11111000};
 
+// Zahl: 4
 byte number_4[8] = {
     0b00011100,
     0b00111100,
@@ -50,6 +61,7 @@ byte number_4[8] = {
     0b00001100,
     0b00001100};
 
+// Zahl: 5
 byte number_5[8] = {
     0b11111100,
     0b11000000,
@@ -60,6 +72,7 @@ byte number_5[8] = {
     0b00001100,
     0b11111000};
 
+// Zahl: 6
 byte number_6[8] = {
     0b01111000,
     0b11100000,
@@ -70,6 +83,7 @@ byte number_6[8] = {
     0b11001100,
     0b01111000};
 
+// Zahl: 7
 byte number_7[8] = {
     0b11111100,
     0b11111100,
@@ -80,6 +94,7 @@ byte number_7[8] = {
     0b00110000,
     0b00110000};
 
+// Zahl: 8
 byte number_8[8] = {
     0b01111000,
     0b11001100,
@@ -90,6 +105,7 @@ byte number_8[8] = {
     0b11001100,
     0b01111000};
 
+// Zahl: 9
 byte number_9[8] = {
     0b01111000,
     0b11001100,
@@ -100,6 +116,7 @@ byte number_9[8] = {
     0b00011100,
     0b01111000};
 
+// Symbol: °C
 byte deegree_celcius[8] = {
     0b01000110,
     0b10101000,
@@ -110,6 +127,7 @@ byte deegree_celcius[8] = {
     0b00001000,
     0b00000110};
 
+// Symbol: .
 byte point[8] = {
     0b0,
     0b0,
@@ -120,6 +138,7 @@ byte point[8] = {
     0b11,
     0b11};
 
+// Symbol: >
 byte input_mode_sign[8] = {
     0b11000000,
     0b01100000,

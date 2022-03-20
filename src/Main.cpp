@@ -13,18 +13,26 @@ void setup()
     pinMode(CLOCK_pin, OUTPUT);
     pinMode(LOAD_pin, OUTPUT);
 
-    // Initialize MAX7219 registers
+    // Aktiviert alle Reihen
     init(max7219_REG_scanLimit, 0x07); // set to scan all row
-    // Disable decoding
-    init(max7219_REG_decodeMode, 0x00);
-    // Not shutdown mode
-    init(max7219_REG_shutdown, 0x01);
-    // Not test mode
-    init(max7219_REG_displayTest, 0x00);
-    // Set display
 
+    // Kein decoding
+    init(max7219_REG_decodeMode, 0x00);
+
+    // Kein shutdown mode
+    init(max7219_REG_shutdown, 0x01);
+
+    // Kein Testmodus
+    init(max7219_REG_displayTest, 0x00);
+
+    // Setzt den Display zurück
     clear_screen();
 }
+
+/**
+ * Input Mode wird mit "*" gestartet und gibt die eingaben auf dem Display aus.
+ * Ist gekennzeichnet durch ein "größer als"-Zeichen: ">"
+ **/
 
 uint8_t input_position = 0;
 uint8_t mode = 0;
@@ -35,12 +43,11 @@ void input_mode(uint8_t key)
 {
     if (key == 13)
     {
-        mode = 1;
         input_position = 0;
         desired_temperature = 0;
         clear_screen();
         overlay(input_mode_sign, 0);
-        draw_matrix_8x32();
+        draw_matrix();
     }
     else
     {
@@ -51,7 +58,7 @@ void input_mode(uint8_t key)
         }
         desired_temperature += (key * pow(10, 1 - input_position));
         setTemperature(key, input_position);
-        draw_matrix_8x32();
+        draw_matrix();
         input_position++;
     }
 }
@@ -61,14 +68,15 @@ float last_temp = 0;
 void loop()
 {
 
-    // Keypad
+    // Lese Eingabe
     int8_t key = getKey();
     if (key != -1)
     {
-        Serial.println(key);
         // Starte "Input Mode" mit "*" -> Taste 13
         if (((mode == 1) & (key < 10)) | (key == 13))
         {
+            // "Modus 1" -> Eingabe
+            mode = 1;
             input_mode(key);
         }
         else if (key == 14)
@@ -78,8 +86,7 @@ void loop()
         }
     }
 
-    // Display
-    // Temperatur Update bei Änderung
+    // "Modus 0" -> Temperaturanzeige
     if (mode == 0)
     {
         set_display_intensity();
@@ -95,7 +102,7 @@ void loop()
             last_temp = temp;
             clear_array();
             ShowTemperature(temp);
-            draw_matrix_8x32();
+            draw_matrix();
         }
     }
 }

@@ -1,11 +1,3 @@
-/**
- * Pins:
- * D2 - D9 (Arduino) -> 1 - 8 (4x4 Keypad)
- * PORT_D D7,D6,D5,D4,D3,D2,D1,D0
- * PORT_B X,X,D13,D12,D11,D10,D9,D8
- * PORT_C X,X,A5,A4,A3,A2,A1,A0
- */
-
 #include <Arduino.h>
 
 /**

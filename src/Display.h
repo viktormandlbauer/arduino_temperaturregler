@@ -1,12 +1,12 @@
 #include <Characters_8x8.h>
 
-// set pin definition
+// Pin definition
 const int CLOCK_pin = 11;
 const int LOAD_pin = 12;
 const int DIN_pin = 13;
 const int modules = 4;
 
-// MAX7219 register address
+// Typische Registaddressen
 const byte max7219_REG_noop = 0x00;
 const byte max7219_REG_decodeMode = 0x09;
 const byte max7219_REG_intensity = 0x0a;
@@ -16,6 +16,11 @@ const byte max7219_REG_displayTest = 0x0f;
 
 byte matrix_8X32[8][modules];
 
+// Funktions für das Senden eines Bytes
+// 1) CLOCK LOW 
+// 2) WRITE 0/1 
+// 3) CLOCK HIGH
+// Repeat
 void SendByte(byte data)
 {
 
@@ -39,6 +44,8 @@ void SendByte(byte data)
   }
 }
 
+// Senden von zwei Bytes
+// 8 Bit Register Addresse + 8 Bit Daten
 void init(byte reg_addr, byte reg_data)
 {
   digitalWrite(LOAD_pin, LOW);
@@ -50,6 +57,7 @@ void init(byte reg_addr, byte reg_data)
   digitalWrite(LOAD_pin, HIGH);
 }
 
+// Leert den Display und das Array
 void clear_screen()
 {
 
@@ -71,6 +79,7 @@ void clear_screen()
   }
 }
 
+// Leer nur das Array
 void clear_array()
 {
   for (byte i = 0; i < 8; i++)
@@ -82,14 +91,15 @@ void clear_array()
   }
 }
 
-// Set display intensity
+// Setzt Helligkeit des Display durch lesen des Analogen Eingangs "A0"
 void set_display_intensity()
 {
   byte intensity_value = (round((16 * analogRead(A0)) / 1024) + 0.4);
   init(max7219_REG_intensity, intensity_value);
 }
 
-void draw_matrix_8x32()
+// Gibt das Array auf dem Display aus
+void draw_matrix()
 {
 
   byte mask = 0;
@@ -124,6 +134,7 @@ void draw_matrix_8x32()
   }
 }
 
+// Beschreibt das Array mit 8x8 Zeichen aus dem Header File "Characters_8x8.h"
 void overlay(byte *matrix, byte offset)
 {
   byte sector = 0;
@@ -146,6 +157,7 @@ void overlay(byte *matrix, byte offset)
   }
 }
 
+// Gibt die Temperatur mit einer Dezimalstelle aus
 void ShowTemperature(float number)
 {
   char temp[8] = {0, 0, 0, 0};
@@ -223,6 +235,7 @@ void ShowTemperature(float number)
   overlay(deegree_celcius, 24);
 }
 
+// Eingabe der Temperatur im "Modus 1"
 void setTemperature(uint8_t input, uint8_t position_input)
 {
   byte position[3] = {6, 14, 24};
