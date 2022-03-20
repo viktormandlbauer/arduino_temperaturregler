@@ -7,6 +7,8 @@ void setup()
 {
     Serial.begin(9600);
 
+    //initKeys()
+
     pinMode(DIN_pin, OUTPUT);
     pinMode(CLOCK_pin, OUTPUT);
     pinMode(LOAD_pin, OUTPUT);
@@ -60,10 +62,10 @@ void loop()
 {
 
     // Keypad
-    uint8_t key = getKey();
+    int8_t key = getKey();
     if (key != -1)
     {
-
+        Serial.println(key);
         // Starte "Input Mode" mit "*" -> Taste 13
         if (((mode == 1) & (key < 10)) | (key == 13))
         {
@@ -82,13 +84,16 @@ void loop()
     {
         set_display_intensity();
         reset();
+        delay(10);
         skip_rom();
+        delay(10);
         convertT();
+        delay(10);
         float temp = getTemperature();
         if (temp != last_temp)
         {
             last_temp = temp;
-            clear_screen();
+            clear_array();
             ShowTemperature(temp);
             draw_matrix_8x32();
         }

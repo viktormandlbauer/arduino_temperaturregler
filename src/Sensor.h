@@ -1,4 +1,4 @@
-#define DATA_PIN 12
+#define DATA_PIN 10 
 
 int reset()
 {

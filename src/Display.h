@@ -1,9 +1,9 @@
 #include <Characters_8x8.h>
 
 // set pin definition
-const int LOAD_pin = 10;
-const int DIN_pin = 11;
-const int CLOCK_pin = 13;
+const int CLOCK_pin = 11;
+const int LOAD_pin = 12;
+const int DIN_pin = 13;
 const int modules = 4;
 
 // MAX7219 register address
@@ -66,7 +66,18 @@ void clear_screen()
   {
     for (byte j = 0; j < 4; j++)
     {
-      matrix_8X32[i][j] = 0x0;
+      matrix_8X32[i][j] = 0;
+    }
+  }
+}
+
+void clear_array()
+{
+  for (byte i = 0; i < 8; i++)
+  {
+    for (byte j = 0; j < 4; j++)
+    {
+      matrix_8X32[i][j] = 0;
     }
   }
 }
